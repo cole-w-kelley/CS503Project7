@@ -4,7 +4,7 @@
 ;;;
 ;;;  Usage:
 ;;;    (perform "employees.dat" "print")
-;;;    (perform "employees.dat" "count" "gt" 1000)
+;;;    (perform "employees.dat" "print" "ge" 2000)
 ;;; ============================================================
 
 
@@ -203,10 +203,15 @@
 (define (action-print employees threshold op)
   (for-each
     (lambda (emp)
-      (when (check-op (get-earnings emp) threshold op)
-        (display (get-info emp)) (newline)
-        (display "earned $") (display (format-dollars (get-earnings emp))) (newline)
-        (newline)))
+      (if (check-op (get-earnings emp) threshold op)
+          (begin
+            (display (get-info emp))
+            (newline)
+            (display "earned $")
+            (display (format-dollars (get-earnings emp)))
+            (newline)
+            (newline))
+          #f))
     employees))
 
 (define (action-count employees threshold op)
