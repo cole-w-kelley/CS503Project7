@@ -97,7 +97,7 @@
        "Commission employee: " (emp-first-name emp) " " (emp-last-name emp) "\n"
        "minimum salary: "    (number->string (commission-min-pay emp))
        ", sales amount: "    (number->string (commission-sales   emp))
-       ", commission rate: " (number->string (* (commission-rate emp) 100)) "%"))
+       ", commission rate: " (number->string (exact->inexact (* (commission-rate emp) 100))) "%"))
 
     (else (error "Unknown employee type" emp))))
 
@@ -137,6 +137,7 @@
       (else
        (loop (cdr chars) (cons (car chars) current) tokens)))))
 
+;; Format a number as a string with exactly two decimal places.
 (define (format-dollars n)
   (let* ((rounded   (/ (round (* n 100)) 100))
          (truncated (truncate rounded))
@@ -147,7 +148,9 @@
     (string-append
       (number->string int-part)
       "."
-      (if (< dec-part 10) (string-append "0" dec-str) dec-str))))
+      (cond ((= dec-part 0)  "00")
+            ((< dec-part 10) (string-append "0" dec-str))
+            (else dec-str)))))
 
 
 ;;; ============================================================
@@ -243,6 +246,19 @@
 
 
 ;;; ============================================================
+;;;  VALIDATION HELPERS
+;;; ============================================================
+
+(define (valid-op? op)
+  (or (string=? op "eq") (string=? op "ne") (string=? op "ge")
+      (string=? op "le") (string=? op "gt") (string=? op "lt")))
+
+(define (valid-action? action)
+  (or (string=? action "print") (string=? action "count") (string=? action "min")
+      (string=? action "max")   (string=? action "total") (string=? action "avg")))
+
+
+;;; ============================================================
 ;;;  PERFORM  — main entry point
 ;;;
 ;;;    (perform filename action)
@@ -250,38 +266,56 @@
 ;;; ============================================================
 
 (define (perform filename action . rest)
-  (let* ((op        (if (null? rest) "ge" (car rest)))
-         (threshold (if (null? rest) 0    (cadr rest)))
-         (employees (read-employees filename)))
+  (cond
+    ;; Validate argument count
+    ((and (not (null? rest)) (not (= (length rest) 2)))
+     (display "Usage: (perform filename action) or (perform filename action op threshold)")
+     (newline))
 
-    (cond
-      ((null? employees)
-       (display "There are no employees.") (newline))
+    ;; Validate action
+    ((not (valid-action? action))
+     (display "Invalid action: ") (display action) (newline)
+     (display "Valid actions: print count min max total avg") (newline))
 
-      ((= (action-count employees threshold op) 0)
-       (display "There are no employees that satisfied the specified condition.") (newline))
+    ;; Validate op when provided
+    ((and (not (null? rest)) (not (valid-op? (car rest))))
+     (display "Invalid operator: ") (display (car rest)) (newline)
+     (display "Valid operators: eq ne gt ge lt le") (newline))
 
-      ((string=? action "count")
-       (display "There are ")
-       (display (action-count employees threshold op))
-       (display " employees.")
-       (newline))
+    ;; Validate threshold is a number when provided
+    ((and (not (null? rest)) (not (number? (cadr rest))))
+     (display "Invalid threshold: ") (display (cadr rest))
+     (display " (must be a number)") (newline))
 
-      ((string=? action "print")
-       (action-print employees threshold op))
+    ;; All inputs valid — run the action
+    (else
+     (let* ((op        (if (null? rest) "ge" (car rest)))
+            (threshold (if (null? rest) 0    (cadr rest)))
+            (employees (read-employees filename)))
+       (cond
+         ((null? employees)
+          (display "There are no employees.") (newline))
 
-      ((string=? action "min")
-       (action-min employees threshold op))
+         ((= (action-count employees threshold op) 0)
+          (display "There are no employees that satisfied the specified condition.") (newline))
 
-      ((string=? action "max")
-       (action-max employees threshold op))
+         ((string=? action "count")
+          (display "There are ")
+          (display (action-count employees threshold op))
+          (display " employees.")
+          (newline))
 
-      ((string=? action "total")
-       (action-total employees threshold op))
+         ((string=? action "print")
+          (action-print employees threshold op))
 
-      ((string=? action "avg")
-       (action-avg employees threshold op))
+         ((string=? action "min")
+          (action-min employees threshold op))
 
-      (else
-       (display "Invalid action: ") (display action) (newline)
-       (display "Valid actions: print count min max total avg") (newline)))))
+         ((string=? action "max")
+          (action-max employees threshold op))
+
+         ((string=? action "total")
+          (action-total employees threshold op))
+
+         ((string=? action "avg")
+          (action-avg employees threshold op)))))))
