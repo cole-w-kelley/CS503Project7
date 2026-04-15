@@ -301,15 +301,23 @@
 
 
 ;; Main function
-(define (perform filename action . rest)
+(define (perform filename . rest)
   (cond
 
     ;; Check usage
-    ((and (not (null? rest)) (not (= (length rest) 2)))
+    ((and (not (null? rest)) (and (not (= (length rest) 1)) (not (= (length rest) 3))))
       ;; idk if this is backward
-      (display "Usage: (perform filename action) or (perform filename action op threshold)")
+      (display "Usage: (perform employee_file action))
       (newline)
-      'done
+      (display "or")
+      (newline)
+      (display "Usage: (perform employee_file action operator threshold)")
+      (newline)
+      (display "Valid actions: count print min max total avg")
+      (newline)
+      (display "Valid operators: eq ne gt ge lt le")
+      (newline)
+      (display "")
       )
     
     ;; Check action
@@ -356,8 +364,9 @@
           ((string=? action "max")
             (newline)
             (newline)
-            (newline)
             (maxEmp employees threshold op)
+            (newline)
+            (display"")
           )
 
           ((string=? action "min")
@@ -365,6 +374,7 @@
             (newline)
             (minEmp employees threshold op)
             (newline)
+            (display '')
           )
 
           ((string=? action "avg")
@@ -372,6 +382,7 @@
             (newline)
             (avgEmp employees threshold op)
             (newline)
+            (display '')
           )
 
           ((string=? action "total")
@@ -379,6 +390,7 @@
             (newline)
             (totalEmp employees threshold op)
             (newline)
+            (display '')
           )
 
           ((string=? action "print")
@@ -386,6 +398,7 @@
             (newline)
             (printEmp employees threshold op)
             (newline)
+            (display '')
           )
         )
       )
