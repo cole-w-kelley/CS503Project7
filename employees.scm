@@ -17,7 +17,7 @@
 
 ;; Start hourly employees
 
-(define (createHourlyEmp first last rate hours) (list 'hourly first last rate hours))
+(define (createHourlyEmp first last hours rate) (list 'hourly first last hours rate))
 
 ;; Tell us if an emp is a hourly emp
 
@@ -25,8 +25,8 @@
 
 ;; Getting fields
 
-(define (hourlyRate emp) (cadddr emp))
-(define (hourlyHours emp) (car (cddddr emp)))
+(define (hourlyHours emp) (cadddr emp))
+(define (hourlyRate emp) (car (cddddr emp)))
 
 ;; End hourly
 
@@ -388,14 +388,12 @@
           ((string=? action "avg")
             (newline)
             (avgEmp employees threshold op)
-            (newline)
             (display "")
           )
 
           ((string=? action "total")
             (newline)
             (totalEmp employees threshold op)
-            (newline)
             (display "")
           )
 
