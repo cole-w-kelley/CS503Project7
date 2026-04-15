@@ -305,7 +305,7 @@
   (cond
 
     ;; Check usage
-    ((and (not (null? rest)) (and (not (= (length rest) 1)) (not (= (length rest) 3))))
+    ((or (null? rest) (and (not (null? rest)) (and (not (= (length rest) 1)) (not (= (length rest) 3)))))
       ;; idk if this is backward
       (display "Usage: (perform employee_file action))
       (newline)
