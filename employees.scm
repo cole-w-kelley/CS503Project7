@@ -307,7 +307,7 @@
     ;; Check usage
     ((or (null? rest) (and (not (null? rest)) (and (not (= (length rest) 1)) (not (= (length rest) 3)))))
       ;; idk if this is backward
-      (display "Usage: (perform employee_file action))
+      (display "Usage: (perform employee_file action)")
       (newline)
       (display "or")
       (newline)
@@ -320,8 +320,10 @@
       (display "")
       )
     
+
+
     ;; Check action
-    ((not (validAction? action))
+    ((not (validAction? (car rest)))
       (display "Invalid action: ") (display action) (newline)
       (display "Valid actions: print count min max total avg")
       (newline)
@@ -339,8 +341,9 @@
     ;; could validate threhsold but I will assume it gives correct number for sake of this project
 
     (else
-      (let* ((op (if (null? rest) "ge" (car rest)))
-             (threshold (if (null? rest) 0 (cadr rest)))
+      (let* ((action (car rest))
+             (op (if (null? rest) "ge" (cadr rest)))
+             (threshold (if (null? rest) 0 (caddr rest)))
              (employees (readEmployees filename))
             )
         (cond
