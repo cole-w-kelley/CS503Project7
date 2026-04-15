@@ -331,7 +331,7 @@
     )
 
     ;; check op
-    ((and (not (null? rest)) (not (validOp? (cadr rest))))
+    ((and (= (length rest) 3) (not (validOp? (cadr rest))))
       (display "Invalid operator: ")  (display (cadr rest)) (newline)
       (display "Valid operators:  eq ne gt ge lt le")
       (newline)
