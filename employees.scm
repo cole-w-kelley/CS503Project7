@@ -194,7 +194,7 @@
                   )
 
                   ;; If type is commission
-                  ((and (string=? type "commision") (= (length fields) 6))
+                  ((and (string=? type "commission") (= (length fields) 6))
                     (loop (cons 
                             (createCommissionedEmp 
                               (list-ref fields 1)
@@ -345,7 +345,8 @@
           )
 
           ((string=? action "count")
-            (display "There are")
+            (newline)
+            (display "There are ")
             (display (countEmp employees threshold op))
             (display " employees.")
             (newline)
