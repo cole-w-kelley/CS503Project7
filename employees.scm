@@ -267,6 +267,7 @@
     (display "Total payment is $")
     (display (number->string total))
     (newline)
+    'done
   )
 )
 
@@ -279,6 +280,7 @@
     (display "Average payment per employee is $")
     (display (number->string avg))
     (newline)
+    'done
   )
 )
 
@@ -307,6 +309,7 @@
       ;; idk if this is backward
       (display "Usage: (perform filename action) or (perform filename action op threshold)")
       (newline)
+      'done
       )
     
     ;; Check action
@@ -314,6 +317,7 @@
       (display "Invalid action: ") (display action) (newline)
       (display "Valid actions: print count min max total avg")
       (newline)
+      'done
     )
 
     ;; check op
@@ -321,6 +325,7 @@
       (display "Invalid operator: ")  (display (car rest)) (newline)
       (display "Valid operators:  eq ne gt ge lt le")
       (newline)
+      'done
     )
 
     ;; could validate threhsold but I will assume it gives correct number for sake of this project
@@ -344,6 +349,7 @@
             (display (countEmp employees threshold op))
             (display " employees.")
             (newline)
+            'done
           )
 
           ((string=? action "max")
