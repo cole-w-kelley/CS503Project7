@@ -307,6 +307,7 @@
     ;; Check usage
     ((or (null? rest) (and (not (= (length rest) 1)) (not (= (length rest) 3))))
       ;; idk if this is backward
+      (newline)
       (display "Usage: (perform employee_file action)")
       (newline)
       (display "or")
@@ -348,24 +349,29 @@
             )
         (cond
           ((null? employees)
-            (display "There are no employees.") (newline)
+            (newline)
+            (display "There are no employees.")
+            (newline)
+            (display "")
           )
 
           ((= (countEmp employees threshold op) 0)
-            (display "There are no employees that satisfied the specified condition.") (newline)
+            (newline)
+            (display "There are no employees that satisfied the specified condition.")
+            (newline)
+            (display "")
           )
 
           ((string=? action "count")
-            (newline)
             (newline)
             (display "There are ")
             (display (countEmp employees threshold op))
             (display " employees.")
             (newline)
+            (display "")
           )
 
           ((string=? action "max")
-            (newline)
             (newline)
             (maxEmp employees threshold op)
             (newline)
@@ -374,14 +380,12 @@
 
           ((string=? action "min")
             (newline)
-            (newline)
             (minEmp employees threshold op)
             (newline)
             (display "")
           )
 
           ((string=? action "avg")
-            (newline)
             (newline)
             (avgEmp employees threshold op)
             (newline)
@@ -390,14 +394,12 @@
 
           ((string=? action "total")
             (newline)
-            (newline)
             (totalEmp employees threshold op)
             (newline)
             (display "")
           )
 
           ((string=? action "print")
-            (newline)
             (newline)
             (printEmp employees threshold op)
             (newline)
