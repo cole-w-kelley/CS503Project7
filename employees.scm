@@ -26,7 +26,7 @@
 ;; Getting fields
 
 (define (hourlyRate emp) (cadddr emp))
-(define (hourlyHours emp) (car (caddddr emp)))
+(define (hourlyHours emp) (car (cddddr emp)))
 
 ;; End hourly
 
