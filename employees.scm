@@ -26,7 +26,7 @@
 ;; Getting fields
 
 (define (hourlyRate emp) (cadddr emp))
-(define (hourlyHours emp) (cadr (caddddr emp)))
+(define (hourlyHours emp) (car (caddddr emp)))
 
 ;; End hourly
 
@@ -41,8 +41,8 @@
 ;; fields
 
 (define (commisionEmpMinPay emp)(cadddr emp))
-(define (commisionEmpSales emp) (car (caddddr emp)))
-(define (commisionEmpRate emp) (cadr (caddddr emp)))
+(define (commisionEmpSales emp) (car (cddddr emp)))
+(define (commisionEmpRate emp) (cadr (cddddr emp)))
 
 ;; End commissioned
 
