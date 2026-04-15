@@ -1,321 +1,372 @@
-;;; ============================================================
-;;;  Employee Management System - Scheme Implementation
-;;;  MIT/GNU Scheme 9.2
-;;;
-;;;  Usage:
-;;;    (perform "employees.dat" "print")
-;;;    (perform "employees.dat" "print" "ge" 2000)
-;;; ============================================================
 
+;; Following is for salary emps
 
-;;; ============================================================
-;;;  EMPLOYEE CONSTRUCTORS & ACCESSORS
-;;; ============================================================
+(define (createSalariedEmp first last salary) (list 'salaried first last salary))
 
-;; --- Salaried Employee ---
-;; Record: (salaried first-name last-name salary)
+;; Tells us if empl obj is salaried
 
-(define (make-salaried-employee first last salary)
-  (list 'salaried first last salary))
+(define (salaried? emp) (eq? (car emp) 'salaried))
 
-(define (salaried? emp)       (eq? (car emp) 'salaried))
-(define (emp-first-name emp)  (cadr emp))
-(define (emp-last-name  emp)  (caddr emp))
-(define (salaried-salary emp) (cadddr emp))
+;; Getting value of fields
 
+(define (empFirstName emp) (cadr emp))
+(define (empLastName emp) (caddr emp))
+(define (salariedSalary emp) (cadddr emp))
 
-;; --- Hourly Employee ---
-;; Record: (hourly first-name last-name hours hourly-rate)
+;; End of salaried employee
 
-(define (make-hourly-employee first last hours rate)
-  (list 'hourly first last hours rate))
+;; Start hourly employees
 
-(define (hourly? emp)      (eq? (car emp) 'hourly))
-(define (hourly-hours emp) (cadddr emp))
-(define (hourly-rate  emp) (car (cddddr emp)))
+(define (createHourlyEmp first last rate hours) (list 'hourly first last rate hours))
 
+;; Tell us if an emp is a hourly emp
 
-;; --- Commissioned Employee ---
-;; Record: (commission first-name last-name min-pay sales commission-rate)
+(define (hourly? emp) (eq? (car emp) 'hourly))
 
-(define (make-commission-employee first last min-pay sales rate)
-  (list 'commission first last min-pay sales rate))
+;; Getting fields
 
-(define (commission? emp)         (eq? (car emp) 'commission))
-(define (commission-min-pay  emp) (cadddr emp))
-(define (commission-sales    emp) (car  (cddddr emp)))
-(define (commission-rate     emp) (cadr (cddddr emp)))
+(define (hourlyRate emp) (cadddr emp))
+(define (hourlyHours emp) (cadr (caddddr emp)))
 
+;; End hourly
 
-;;; ============================================================
-;;;  EARNINGS CALCULATION
-;;; ============================================================
+;; Commissioned employees
 
-(define (get-earnings emp)
-  (cond
+(define (createCommissionedEmp first last minPay sales commissionRate) (list 'commission first last minPay sales commissionRate))
+
+;; Is commissioned?
+
+(define (commission? emp) (eq? (car emp) 'commission))
+
+;; fields
+
+(define (commisionEmpMinPay emp)(cadddr emp))
+(define (commisionEmpSales emp) (car (caddddr emp)))
+(define (commisionEmpRate emp) (cadr (caddddr emp)))
+
+;; End commissioned
+
+;; Earnings for each employee type
+
+(define (getEarning emp)
+  (cond 
     ((salaried? emp)
-     (salaried-salary emp))
+      (salariedSalary emp)
+    )
 
     ((hourly? emp)
-     (let ((h (hourly-hours emp))
-           (r (hourly-rate  emp)))
-       (cond
-         ((<= h 40) (* h r))
-         ((<= h 50) (+ (* 40 r)
-                       (* (* r 1.5) (- h 40))))
-         (else      (+ (* 40 r)
-                       (* (* r 1.5) 10)
-                       (* (* r 2)   (- h 50)))))))
-
+      (let ((h (hourlyHours emp))
+            (r (hourlyRate emp)))
+        (cond
+          ((<= h 40) (* h r))
+          ((<= h 50) (+ (* 40 r) 
+                        (* (* r 1.5) (- h 40))))
+          (else (+ (* r 40)
+                  (* (* r 1.5) 10) 
+                  (* (* r 2) (- h 50))))))
+    )
     ((commission? emp)
-     (let ((earned (* (commission-sales emp) (commission-rate emp)))
-           (min-p  (commission-min-pay emp)))
-       (if (< earned min-p) min-p earned)))
+    (let ((earned (* (commisionEmpSales emp) (commisionEmpRate emp      )))
+      (minPay (commisionEmpMinPay emp)))
+      (if (< earned minPay) minPay earned)
+      )
+    )
+    (else (error "Unknown employee type" emp))
+  )
+)
 
-    (else (error "Unknown employee type" emp))))
+;; Get info for each employee
 
-
-;;; ============================================================
-;;;  INFO STRING
-;;; ============================================================
-
-(define (get-info emp)
-  (cond
+(define (getInfo emp)
+  (cond 
     ((salaried? emp)
-     (string-append
-       "Salaried employee: " (emp-first-name emp) " " (emp-last-name emp) "\n"
-       "weekly salary: " (number->string (salaried-salary emp))))
-
+      (string-append 
+       "Salaried employee: " (empFirstName emp) " " (empLastName emp) "\n"
+       "weekly salary: " (number->string (salariedSalary emp))
+      )
+    )
     ((hourly? emp)
-     (string-append
-       "Hourly employee: " (emp-first-name emp) " " (emp-last-name emp) "\n"
-       "hours worked: "  (number->string (hourly-hours emp))
-       ", hourly rate: " (number->string (hourly-rate  emp))))
-
+      (string-append
+       "Hourly employee: " (empFirstName emp) " " (empLastName emp) "\n"
+       "hours worked: " (number->string (hourlyHours emp))
+       ", hourly rate: " (number->string (hourlyRate emp))
+      )
+    )
     ((commission? emp)
-     (string-append
-       "Commission employee: " (emp-first-name emp) " " (emp-last-name emp) "\n"
-       "minimum salary: "    (number->string (commission-min-pay emp))
-       ", sales amount: "    (number->string (commission-sales   emp))
-       ", commission rate: " (number->string (exact->inexact (* (commission-rate emp) 100))) "%"))
+      (string-append
+        "Commission employee: " (empFirstName emp) " " (empLastName emp) "\n"
+        "minimum salary: " (number->string (commisionEmpMinPay emp))
+        ", sales ammount: " (number->string (commisionEmpSales emp))
+        ", commision rate: " (number->string (exact->inexact (* (commisionEmpRate emp) 100))) "%"
+      )
+    )
+    (else (error "Unknown employee type" emp))
+  )
+)
 
-    (else (error "Unknown employee type" emp))))
+;; Process operater characetr given a value
 
-
-;;; ============================================================
-;;;  COMPARISON OPERATOR
-;;; ============================================================
-
-(define (check-op value threshold op)
+(define (checkOp value threshold op)
   (cond
     ((string=? op "eq") (= value threshold))
     ((string=? op "ne") (not (= value threshold)))
     ((string=? op "ge") (>= value threshold))
     ((string=? op "le") (<= value threshold))
-    ((string=? op "gt") (>  value threshold))
-    ((string=? op "lt") (<  value threshold))
-    (else #f)))
+    ((string=? op "gt") (> value threshold))
+    ((string=? op "lt") (< value threshold))
+    (else #f)
+  )
+)
 
+;; String stuff with help from provided functions
 
-;;; ============================================================
-;;;  STRING UTILITIES
-;;; ============================================================
+(define (parse-string str)
+  (let ((port (open-input-string str)))
+    (let ((result (parse-string-helper port '())))
+      (close-input-port port)
+      result)))
 
-(define (string-split str)
-  (let loop ((chars   (string->list str))
-             (current '())
-             (tokens  '()))
-    (cond
-      ((null? chars)
-       (if (null? current)
-           (reverse tokens)
-           (reverse (cons (list->string (reverse current)) tokens))))
-      ((char-whitespace? (car chars))
-       (if (null? current)
-           (loop (cdr chars) '() tokens)
-           (loop (cdr chars) '() (cons (list->string (reverse current)) tokens))))
-      (else
-       (loop (cdr chars) (cons (car chars) current) tokens)))))
+(define (parse-string-helper port tokens)
+  (skip-whitespaces port)
+  (let ((ch (peek-char port)))
+    (if (eof-object? ch)
+      (reverse tokens)
+      (let ((token (read-token port "")))
+        (parse-string-helper port (cons token tokens))))))
 
-;; Format a number as a string with exactly two decimal places.
-(define (format-dollars n)
-  (let* ((rounded   (/ (round (* n 100)) 100))
-         (truncated (truncate rounded))
-         (frac      (round (* (- rounded truncated) 100)))
-         (int-part  (inexact->exact truncated))
-         (dec-part  (inexact->exact frac))
-         (dec-str   (number->string dec-part)))
-    (string-append
-      (number->string int-part)
-      "."
-      (cond ((= dec-part 0)  "00")
-            ((< dec-part 10) (string-append "0" dec-str))
-            (else dec-str)))))
+(define (read-token port current)
+  (let ((ch (peek-char port)))
+    (if (or (eof-object? ch) (char-whitespace? ch))
+      current
+      (begin
+        (read-char port)
+        (read-token port (string-append current (string ch)))))))
 
+(define (skip-whitespaces port)
+  (let ((ch (peek-char port)))
+    (if (and (not (eof-object? ch)) (char-whitespace? ch))
+      (begin
+        (read-char port)
+        (skip-whitespaces port)))))
 
-;;; ============================================================
-;;;  FILE READER
-;;; ============================================================
+;; File readin
 
-(define (read-employees filename)
-  (let ((port (open-input-file filename)))
+(define (readEmployees fileName)
+  (let ((port (open-input-file fileName)))
     (let loop ((employees '()))
       (let ((line (read-line port)))
         (if (eof-object? line)
-            (begin
-              (close-input-port port)
-              (reverse employees))
-            (let ((fields (string-split line)))
-              (if (null? fields)
-                  (loop employees)
-                  (let ((type (car fields)))
-                    (cond
-                      ((and (string=? type "salaried") (= (length fields) 4))
-                       (loop (cons (make-salaried-employee
-                                     (list-ref fields 1)
-                                     (list-ref fields 2)
-                                     (string->number (list-ref fields 3)))
-                                   employees)))
-                      ((and (string=? type "hourly") (= (length fields) 5))
-                       (loop (cons (make-hourly-employee
-                                     (list-ref fields 1)
-                                     (list-ref fields 2)
-                                     (string->number (list-ref fields 3))
-                                     (string->number (list-ref fields 4)))
-                                   employees)))
-                      ((and (string=? type "commission") (= (length fields) 6))
-                       (loop (cons (make-commission-employee
-                                     (list-ref fields 1)
-                                     (list-ref fields 2)
-                                     (string->number (list-ref fields 3))
-                                     (string->number (list-ref fields 4))
-                                     (string->number (list-ref fields 5)))
-                                   employees)))
-                      (else
-                       (loop employees)))))))))))
+          (begin
+            (close-input-port port)
+            (reverse employees)
+          )
+          (let ((fields (parse-string line)))
+            (if (null? fields)
+              (loop employees)
+              (let ((type (car fields)))
+                (cond 
+
+                  ;; If type is salary
+                  ((and (string=? type "salaried") (= (length fields) 4))
+                    (loop (cons 
+                            (createSalariedEmp 
+                              (list-ref fields 1)
+                              (list-ref fields 2)
+                              (string->number (list-ref fields 3))
+                            )
+                            employees
+                          )
+                    )
+                  )
+
+                  ;; If type is hourly
+                  ((and (string=? type "hourly") (= (length fields) 5))
+                    (loop (cons 
+                            (createHourlyEmp 
+                              (list-ref fields 1)
+                              (list-ref fields 2)
+                              (string->number (list-ref fields 3))
+                              (string->number (list-ref fields 4))
+                            )
+                            employees
+                          )
+                    )
+                  )
+
+                  ;; If type is commission
+                  ((and (string=? type "commision") (= (length fields) 6))
+                    (loop (cons 
+                            (createCommissionedEmp 
+                              (list-ref fields 1)
+                              (list-ref fields 2)
+                              (string->number (list-ref fields 3))
+                              (string->number (list-ref fields 4))
+                              (string->number (list-ref fields 5))
+                            )
+                            employees
+                          )
+                    )
+                  )
+                  (else (loop employees))
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
 
 
-;;; ============================================================
-;;;  ACTIONS
-;;; ============================================================
+;; Helper functions
 
-(define (filter-employees employees threshold op)
-  (filter (lambda (e) (check-op (get-earnings e) threshold op))
-          employees))
+(define (getEmployees employees threshold op)
+  (filter (lambda (e) (checkOp (getEarning e) threshold op))
+   employees
+  )
+)
 
-(define (action-print employees threshold op)
+(define (printEmp employees threshold op)
   (for-each
     (lambda (emp)
-      (if (check-op (get-earnings emp) threshold op)
-          (begin
-            (display (get-info emp))
-            (newline)
-            (display "earned $")
-            (display (format-dollars (get-earnings emp)))
-            (newline)
-            (newline))
-          #f))
-    employees))
+      (if (checkOp (getEarning emp) threshold op)
+        (begin
+          (display (getInfo emp))
+          (newline)
+          (display "earned $")
+          (display (number->string (getEarning emp)))
+          (newline)
+          (newline)
+        )
+        #f
+      )
+    )
+    employees
+  )
+)
 
-(define (action-count employees threshold op)
-  (length (filter-employees employees threshold op)))
+(define (countEmp employees threshold op)
+  (length (getEmployees employees threshold op))
+)
 
-(define (action-min employees threshold op)
-  (let* ((matching (filter-employees employees threshold op))
-         (min-val  (apply min (map get-earnings matching))))
-    (action-print employees min-val "eq")))
+(define (minEmp employees threshold op)
+  (let* ((matching (getEmployees employees threshold op))
+        (min-val (apply min (map getEarning matching))))
+    (printEmp matching min-val "eq"))
+)
 
-(define (action-max employees threshold op)
-  (let* ((matching (filter-employees employees threshold op))
-         (max-val  (apply max (map get-earnings matching))))
-    (action-print employees max-val "eq")))
+(define (maxEmp employees threshold op)
+  (let* ((matching (getEmployees employees threshold op))
+        (max-val (apply max (map getEarning matching))))
+    (printEmp matching max-val "eq"))
+)
 
-(define (action-total employees threshold op)
-  (let ((total (apply + (map get-earnings (filter-employees employees threshold op)))))
+(define (totalEmp employees threshold op)
+  (let ((total (apply + (map getEarning (getEmployees employees threshold op)))))
     (display "Total payment is $")
-    (display (format-dollars total))
-    (newline)))
+    (display (number->string total))
+    (newline)
+  )
+)
 
-(define (action-avg employees threshold op)
-  (let* ((matching (filter-employees employees threshold op))
-         (cnt      (length matching))
-         (avg      (/ (apply + (map get-earnings matching)) cnt)))
+;; Get average of emps
+(define (avgEmp employees threshold op)
+  (let* ((total (apply + (map getEarning (getEmployees employees threshold op))))
+        (count (length (getEmployees employees threshold op)))
+        (avg (/ total count))
+      )
     (display "Average payment per employee is $")
-    (display (format-dollars avg))
-    (newline)))
+    (display (number->string avg))
+    (newline)
+  )
+)
+
+;; validation
+
+(define (validOp? op)
+  (or (string=? op "eq") (string=? op "ge") (string=? op "ne") 
+      (string=? op "lt") (string=? op "gt") (string=? op "le")
+  )
+)
+
+;; 'Total' might need to be sum
+(define (validAction? action)
+  (or (string=? action "count") (string=? action "max") (string=? action "min") 
+      (string=? action "avg") (string=? action "print") (string=? action "total")
+  )
+)
 
 
-;;; ============================================================
-;;;  VALIDATION HELPERS
-;;; ============================================================
-
-(define (valid-op? op)
-  (or (string=? op "eq") (string=? op "ne") (string=? op "ge")
-      (string=? op "le") (string=? op "gt") (string=? op "lt")))
-
-(define (valid-action? action)
-  (or (string=? action "print") (string=? action "count") (string=? action "min")
-      (string=? action "max")   (string=? action "total") (string=? action "avg")))
-
-
-;;; ============================================================
-;;;  PERFORM  — main entry point
-;;;
-;;;    (perform filename action)
-;;;    (perform filename action op threshold)
-;;; ============================================================
-
+;; Main function
 (define (perform filename action . rest)
   (cond
-    ;; Validate argument count
+
+    ;; Check usage
     ((and (not (null? rest)) (not (= (length rest) 2)))
-     (display "Usage: (perform filename action) or (perform filename action op threshold)")
-     (newline))
+      ;; idk if this is backward
+      (display "Usage: (perform filename action) or (perform filename action op threshold)")
+      (newline)
+      )
+    
+    ;; Check action
+    ((not (validAction? action))
+      (display "Invalid action: ") (display action) (newline)
+      (display "Valid actions: print count min max total avg")
+      (newline)
+    )
 
-    ;; Validate action
-    ((not (valid-action? action))
-     (display "Invalid action: ") (display action) (newline)
-     (display "Valid actions: print count min max total avg") (newline))
+    ;; check op
+    ((and (not (null? rest)) (not (validOp? (car rest))))
+      (display "Invalid operator: ")  (display (car rest)) (newline)
+      (display "Valid operators:  eq ne gt ge lt le")
+      (newline)
+    )
 
-    ;; Validate op when provided
-    ((and (not (null? rest)) (not (valid-op? (car rest))))
-     (display "Invalid operator: ") (display (car rest)) (newline)
-     (display "Valid operators: eq ne gt ge lt le") (newline))
+    ;; could validate threhsold but I will assume it gives correct number for sake of this project
 
-    ;; Validate threshold is a number when provided
-    ((and (not (null? rest)) (not (number? (cadr rest))))
-     (display "Invalid threshold: ") (display (cadr rest))
-     (display " (must be a number)") (newline))
-
-    ;; All inputs valid — run the action
     (else
-     (let* ((op        (if (null? rest) "ge" (car rest)))
-            (threshold (if (null? rest) 0    (cadr rest)))
-            (employees (read-employees filename)))
-       (cond
-         ((null? employees)
-          (display "There are no employees.") (newline))
+      (let* ((op (if (null? rest) "ge" (car rest)))
+             (threshold (if (null? rest) 0 (cadr rest)))
+             (employees (readEmployees filename))
+            )
+        (cond
+          ((null? employees)
+            (display "There are no employees.") (newline)
+          )
 
-         ((= (action-count employees threshold op) 0)
-          (display "There are no employees that satisfied the specified condition.") (newline))
+          ((= (countEmp employees threshold op) 0)
+            (display "There are no employees that satisfied the specified condition.") (newline)
+          )
 
-         ((string=? action "count")
-          (display "There are ")
-          (display (action-count employees threshold op))
-          (display " employees.")
-          (newline))
+          ((string=? action "count")
+            (display "There are")
+            (display (countEmp employees threshold op))
+            (display " employees.")
+            (newline)
+          )
 
-         ((string=? action "print")
-          (action-print employees threshold op))
+          ((string=? action "max")
+            (maxEmp employees threshold op)
+          )
 
-         ((string=? action "min")
-          (action-min employees threshold op))
+          ((string=? action "min")
+            (minEmp employees threshold op)
+          )
 
-         ((string=? action "max")
-          (action-max employees threshold op))
+          ((string=? action "avg")
+            (avgEmp employees threshold op)
+          )
 
-         ((string=? action "total")
-          (action-total employees threshold op))
+          ((string=? action "total")
+            (totalEmp employees threshold op)
+          )
 
-         ((string=? action "avg")
-          (action-avg employees threshold op)))))))
+          ((string=? action "print")
+            (printEmp employees threshold op)
+          )
+        )
+      )
+    )
+  )
+)
