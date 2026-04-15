@@ -305,7 +305,7 @@
   (cond
 
     ;; Check usage
-    ((or (null? rest) (and (not (null? rest)) (and (not (= (length rest) 1)) (not (= (length rest) 3)))))
+    ((or (null? rest) (and (not (= (length rest) 1)) (not (= (length rest) 3))))
       ;; idk if this is backward
       (display "Usage: (perform employee_file action)")
       (newline)
@@ -324,15 +324,15 @@
 
     ;; Check action
     ((not (validAction? (car rest)))
-      (display "Invalid action: ") (display action) (newline)
+      (display "Invalid action: ") (display (car rest)) (newline)
       (display "Valid actions: print count min max total avg")
       (newline)
       'done
     )
 
     ;; check op
-    ((and (not (null? rest)) (not (validOp? (car rest))))
-      (display "Invalid operator: ")  (display (car rest)) (newline)
+    ((and (not (null? rest)) (not (validOp? (cadr rest))))
+      (display "Invalid operator: ")  (display (cadr rest)) (newline)
       (display "Valid operators:  eq ne gt ge lt le")
       (newline)
       'done
@@ -342,8 +342,8 @@
 
     (else
       (let* ((action (car rest))
-             (op (if (null? rest) "ge" (cadr rest)))
-             (threshold (if (null? rest) 0 (caddr rest)))
+             (op (if (= (length rest) 1) "ge" (cadr rest)))
+             (threshold (if (= (length rest) 1) 0 (caddr rest)))
              (employees (readEmployees filename))
             )
         (cond
@@ -377,7 +377,7 @@
             (newline)
             (minEmp employees threshold op)
             (newline)
-            (display '')
+            (display "")
           )
 
           ((string=? action "avg")
@@ -385,7 +385,7 @@
             (newline)
             (avgEmp employees threshold op)
             (newline)
-            (display '')
+            (display "")
           )
 
           ((string=? action "total")
@@ -393,7 +393,7 @@
             (newline)
             (totalEmp employees threshold op)
             (newline)
-            (display '')
+            (display "")
           )
 
           ((string=? action "print")
@@ -401,7 +401,7 @@
             (newline)
             (printEmp employees threshold op)
             (newline)
-            (display '')
+            (display "")
           )
         )
       )
